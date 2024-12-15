@@ -9,7 +9,7 @@ trait apiresponsetrait
         $array=[
             'status'=>$status,
             'message'=>$message,
-            'data'=>$data
+            'data'=>$data,
         ];
         return response($array);
     }

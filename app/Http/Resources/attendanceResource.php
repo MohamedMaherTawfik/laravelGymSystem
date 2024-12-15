@@ -16,10 +16,10 @@ class attendanceResource extends JsonResource
     {
         return [
             'id'=>$this->id,
-            'members_id'=>$this->members_id,
             'date'=>$this->date,
             'time_in'=>$this->time_in,
-            'time_out'=>$this->time_out
+            'time_out'=>$this->time_out,
+            'member'=>$this->members
         ];
     }
 }

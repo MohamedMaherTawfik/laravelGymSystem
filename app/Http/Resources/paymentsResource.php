@@ -20,7 +20,8 @@ class paymentsResource extends JsonResource
             'payment_date'=>$this->payment_date,
             'status'=>$this->status,
             'payment_method'=>$this->payment_method,
-            'member'=>$this->members,
+            'member_id'=>$this->members_id,
+            'member'=>$this->member
         ];
     }
 }
