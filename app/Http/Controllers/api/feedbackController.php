@@ -7,66 +7,41 @@ use Illuminate\Http\Request;
 use App\Models\feedback;
 use App\Http\Resources\feedbackResource;
 use Validator;
+use App\services\feedbackServices;
+use App\Http\Requests\feedbackRequest;
 
 class feedbackController extends Controller
 {
     use apiresponsetrait;
+    private $feedbackServices;
 
-    public function index(){
-        $feedback=feedback::latest()->get();
-        return $this->apiresponse($feedback,'Data Recieved Successfully',200);
+    public function __construct(feedbackServices $feedbackServices)
+    {
+        $this->feedbackServices = $feedbackServices;
     }
 
-    public function show(){
-        $feedback=feedback::with('member')->find(request('id'));
-        if(!$feedback){
-            return $this->apiresponse(null,'Feedback not found',404);
-        }
-        return $this->apiresponse(new feedbackResource($feedback),'Feedback Found Successfully',200);
+    public function index()
+    {
+        return $this->feedbackServices->getAllfeedback();
     }
 
-    public function store(){
-        $validator = Validator::make(request()->all(), [
-            'members_id' => 'required|integer',
-            'feedback' => 'required|string',
-            'feedback_date' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->apiResponse(null, $validator->errors(), 400);
-        }
-        $feedback = feedback::create(request()->all());
-        if ($feedback) {
-            return $this->apiResponse($feedback, 'Feedback Created Successfully', 200);
-        } else {
-            return $this->apiResponse(null, 'Feedback Not Created', 400);
-        }
+    public function store(feedbackRequest $request)
+    {
+        return $this->feedbackServices->createfeedback($request);
     }
 
-    public function update(){
-        $validator = Validator::make(request()->all(), [
-            'members_id' => 'required|integer',
-            'feedback' => 'required',
-            'feedback_date' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->apiResponse(null, $validator->errors(), 400);
-        }
-        $feedback=feedback::find(request('id'));
-        if (!$feedback) {
-            return $this->apiResponse(null, 'Feedback not found', 404);
-        }
-        $feedback->update(request()->all());
-        return $this->apiResponse($feedback, 'Feedback Updated Successfully', 200);
+    public function show()
+    {
+        return $this->feedbackServices->getfeedbackById();
     }
 
-    public function destroy(){
-        $feedback=feedback::find(request('id'));
-        if (!$feedback) {
-            return $this->apiResponse(null, 'Feedback not found', 404);
-        }
-        $feedback->delete();
-        return $this->apiResponse(null, 'Feedback Deleted Successfully', 200);
+    public function update(feedbackRequest $request)
+    {
+        return $this->feedbackServices->updatefeedback($request);
+    }
+
+    public function destroy()
+    {
+        return $this->feedbackServices->deletefeedback();
     }
 }

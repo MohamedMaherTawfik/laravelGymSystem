@@ -7,80 +7,38 @@ use Illuminate\Http\Request;
 use App\Models\Trainers;
 use App\Http\Resources\trainersresource;
 use Validator;
+use App\Services\trainersServices;
 
 class trainersController extends Controller
 {
     use apiresponsetrait;
+
+    private $trainersServices;
+    public function __construct(trainersServices $trainersServices)
+    {
+        $this->trainersServices=$trainersServices;
+    }
     public function index(){
-        $trainers=Trainers::latest()->get();
-        return $this->apiresponse($trainers,'Data Recieved Successfully',200);
+        return $this->trainersServices->getTrainers();
     }
 
     public function show(){
-        $trainers=Trainers::find(request('id'));
-        if(!$trainers){
-            return $this->apiresponse(null,'Trainer not found',404);
-        }
-        return $this->apiresponse(new trainersresource($trainers),'Trainer Found Successfully',200);
+        return $this->trainersServices->getTrainerById();
     }
 
     public function store()
     {
-        $validator = Validator::make(request()->all(), [
-            'first_name' => 'required|min:3',
-            'last_name' => 'required|min:3',
-            'email' => 'required|email',
-            'phone' => 'required',
-            'hire_date' => '',
-            'speciality' => 'required',
-            'salary' => 'required|integer',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->apiResponse(null, $validator->errors(), 400);
-        }
-
-        $trainer = Trainers::create(request()->all());
-        if ($trainer) {
-            return $this->apiResponse($trainer, 'Trainer Created Successfully', 200);
-        } else {
-            return $this->apiResponse(null, 'Trainer Not Created', 400);
-        }
+        return $this->trainersServices->storeTrainers(request());
     }
 
     public function update()
     {
-        $validator = Validator::make(request()->all(), [
-            'first_name' => 'required|min:3',
-            'last_name' => 'required|min:3',
-            'email' => 'required|email',
-            'phone' => 'required',
-            'hire_date' => '',
-            'speciality' => 'required',
-            'salary' => 'required|integer',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->apiResponse(null, $validator->errors(), 400);
-        }
-
-        $trainer = Trainers::find(request('id'));
-        if ($trainer) {
-            $trainer->update(request()->all());
-            return $this->apiResponse($trainer, 'Trainer Updated Successfully', 200);
-        } else {
-            return $this->apiResponse(null, 'Trainer Not Updated', 400);
-        }
+        return $this->trainersServices->updateTrainer(request());
     }
 
     public function destroy()
     {
-        $trainer = Trainers::find(request('id'));
-        if ($trainer) {
-            $trainer->delete();
-            return $this->apiResponse(null, 'Trainer Deleted Successfully', 200);
-        } else {
-            return $this->apiResponse(null, 'Trainer Not found', 400);
-        }
+        return $this->trainersServices->destroyTrainer();
     }
 }
+
